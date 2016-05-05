@@ -33,18 +33,24 @@ class Operable:
     def __abs__(self):
         return Abs(self)
 
+    def filter_above(self, other):
+        return FilterAbove(self, other)
+
+    def filter_below(self, other):
+        return FilterBelow(self, other)
+
+    def retain_between(self, lower, upper):
+        return RetainBetween(self, lower, upper)
+
     # other ideas
 
     # upper limit (max), reduce greater values to that of second operand < and <=
     # lower limit (min), raise lower values to that of second operand > and >=
 
-    # filter above (high pass?), pass zero if value is greater than second operand <<
-    # filter below (low pass?), pass zero if value is lower than second operand >>
-
     # buffer/smooth/average
 
     # mid band, for noisy input required to be on one side of a threshold
-    # for return, require greater movement, maybe this is a feature of filter
+    # for return, require greater movement, maybe this is a feature of filter/retain
 
     # https://docs.python.org/3/library/operator.html
 
@@ -95,6 +101,13 @@ class DoubleArgumentOperator(Operator):
         return operand
 
 
+class TripleArgumentOperator(DoubleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand, third_operand):
+        super().__init__(first_operand, second_operand)
+        self._third_operand = self._wrap_if_needed(third_operand)
+
+
 class Add(DoubleArgumentOperator):
 
     def _calculate_value(self):
@@ -131,3 +144,32 @@ class Mul(DoubleArgumentOperator):
     def _calculate_value(self):
         return self._first_operand.value * self._second_operand.value
 
+
+class FilterAbove(DoubleArgumentOperator):
+
+    def _calculate_value(self):
+        if self._first_operand.value <= self._second_operand.value:
+            return self._first_operand.value
+        else:
+            return 0
+
+
+class FilterBelow(DoubleArgumentOperator):
+
+    def _calculate_value(self):
+        if self._first_operand.value >= self._second_operand.value:
+            return self._first_operand.value
+        else:
+            return 0
+
+
+class RetainBetween(TripleArgumentOperator):
+
+    def _calculate_value(self):
+        val = self._first_operand.value
+        lower = self._second_operand.value
+        upper = self._third_operand.value
+        if lower <= val <= upper:
+            return val
+        else:
+            return 0
