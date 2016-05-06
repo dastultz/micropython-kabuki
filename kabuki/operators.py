@@ -42,17 +42,15 @@ class Operable:
     def retain_between(self, lower, upper):
         return RetainBetween(self, lower, upper)
 
+    def reduce_noise(self, band):
+        return ReduceNoise(self, band)
+
     # other ideas
 
     # upper limit (max), reduce greater values to that of second operand < and <=
     # lower limit (min), raise lower values to that of second operand > and >=
 
     # buffer/smooth/average
-
-    # mid band, for noisy input required to be on one side of a threshold
-    # for return, require greater movement, maybe this is a feature of filter/retain
-
-    # https://docs.python.org/3/library/operator.html
 
 
 class Operand(Operable):
@@ -173,3 +171,30 @@ class RetainBetween(TripleArgumentOperator):
             return val
         else:
             return 0
+
+
+class ReduceNoise(DoubleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand):
+        super().__init__(first_operand, second_operand)
+        self._last_trend_direction = True  # True for "up"
+        self._last_trend_value = 0 # the last value that was in the trend direction
+
+    def _calculate_value(self):
+        band = self._second_operand.value
+        current_value = self._first_operand.value
+        diff = current_value - self._last_trend_value
+        current_direction = True if diff >= 0 else False
+
+        if current_direction != self._last_trend_direction:
+            if abs(diff) >= band:
+                self._last_trend_direction = current_direction
+                self._last_trend_value = current_value
+                value = current_value
+            else:
+                value = self._last_trend_value
+        else:
+            self._last_trend_value = current_value
+            value = current_value
+
+        return value

@@ -300,6 +300,56 @@ class TestRetainBetween(unittest.TestCase):
         self.assertEqual(0, n1.retain_between(5, 7).value)
         self.assertEqual(0, n1.retain_between(0, 2).value)
 
+class TestReduceNoise(unittest.TestCase):
+
+    def test_start_to_up(self):
+        n = Operand(value=7)
+        op = n.reduce_noise(3)
+        self.assertEqual(7, op.value)
+        n.value = 9
+        self.assertEqual(9, op.value)
+        n.value = 7
+        self.assertEqual(9, op.value)
+        n.value = 8
+        self.assertEqual(9, op.value)
+        n.value = 10
+        self.assertEqual(10, op.value)
+        n.value = 8
+        self.assertEqual(10, op.value)
+        n.value = 7
+        self.assertEqual(7, op.value)
+        n.value = 6
+        self.assertEqual(6, op.value)
+        n.value = 8
+        self.assertEqual(6, op.value)
+        n.value = 7
+        self.assertEqual(6, op.value)
+        n.value = 5
+        self.assertEqual(5, op.value)
+        n.value = 6
+        self.assertEqual(5, op.value)
+        n.value = 10
+        self.assertEqual(10, op.value)
+
+    def test_start_to_down(self):
+        n = Operand(value=-3)
+        op = n.reduce_noise(3)
+        self.assertEqual(-3, op.value)
+        n.value = -5
+        self.assertEqual(-5, op.value)
+        n.value = -4
+        self.assertEqual(-5, op.value)
+        n.value = -3
+        self.assertEqual(-5, op.value)
+        n.value = -6
+        self.assertEqual(-6, op.value)
+        n.value = -7
+        self.assertEqual(-7, op.value)
+        n.value = -6
+        self.assertEqual(-7, op.value)
+        n.value = -3
+        self.assertEqual(-3, op.value)
+
 
 class TestIntegration(unittest.TestCase):
 
