@@ -239,7 +239,7 @@ class TestFilterAbove(unittest.TestCase):
     def test_equal(self):
         n1 = Operand(value=3)
         n2 = Operand(value=3)
-        self.assertEqual(3, n1.filter_above(n2).value)
+        self.assertEqual(0, n1.filter_above(n2).value)
 
 
 class TestFilterBelow(unittest.TestCase):
@@ -258,7 +258,7 @@ class TestFilterBelow(unittest.TestCase):
     def test_equal(self):
         n1 = Operand(value=3)
         n2 = Operand(value=3)
-        self.assertEqual(3, n1.filter_below(n2).value)
+        self.assertEqual(0, n1.filter_below(n2).value)
 
 
 class TestRetainBetween(unittest.TestCase):
@@ -299,6 +299,7 @@ class TestRetainBetween(unittest.TestCase):
         self.assertEqual(3, n1.retain_between(2, 4).value)
         self.assertEqual(0, n1.retain_between(5, 7).value)
         self.assertEqual(0, n1.retain_between(0, 2).value)
+
 
 class TestReduceNoise(unittest.TestCase):
 

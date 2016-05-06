@@ -146,8 +146,10 @@ class Mul(DoubleArgumentOperator):
 class FilterAbove(DoubleArgumentOperator):
 
     def _calculate_value(self):
-        if self._first_operand.value <= self._second_operand.value:
-            return self._first_operand.value
+        value = self._first_operand.value
+        limit = self._second_operand.value
+        if value < limit:
+            return value
         else:
             return 0
 
@@ -155,8 +157,10 @@ class FilterAbove(DoubleArgumentOperator):
 class FilterBelow(DoubleArgumentOperator):
 
     def _calculate_value(self):
-        if self._first_operand.value >= self._second_operand.value:
-            return self._first_operand.value
+        value = self._first_operand.value
+        limit = self._second_operand.value
+        if value > limit:
+            return value
         else:
             return 0
 
