@@ -73,6 +73,18 @@ class TestNeg(unittest.TestCase):
         op = (-n)
         self.assertEqual(-1.25, op.value)
 
+    def test_true(self):
+        n = Operand(value=True)
+
+        op = (-n)
+        self.assertEqual(False, op.value)
+
+    def test_false(self):
+        n = Operand(value=False)
+
+        op = (-n)
+        self.assertEqual(True, op.value)
+
 
 class TestSub(unittest.TestCase):
 

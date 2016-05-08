@@ -121,7 +121,13 @@ class Sub(DoubleArgumentOperator):
 class Neg(SingleArgumentOperator):
 
     def _calculate_value(self):
-        return (-self._operand.value)
+        value = self._operand.value
+        if value is True:
+            return False
+        elif value is False:
+            return True
+        else:
+            return -value
 
 
 class Abs(SingleArgumentOperator):
