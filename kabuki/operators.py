@@ -39,18 +39,21 @@ class Operable:
     def filter_below(self, other):
         return FilterBelow(self, other)
 
+    def constrain(self, lower, upper):
+        return Constrain(self, lower, upper)
+
+    def map(self, in_start, in_stop, out_start, out_stop, constrain=True):
+        op = Map(self, in_start, in_stop, out_start, out_stop)
+        if constrain:
+            return op.constrain(out_start, out_stop)
+        else:
+            return op
+
     def retain_between(self, lower, upper):
         return RetainBetween(self, lower, upper)
 
     def reduce_noise(self, band):
         return ReduceNoise(self, band)
-
-    # other ideas
-
-    # upper limit (max), reduce greater values to that of second operand < and <=
-    # lower limit (min), raise lower values to that of second operand > and >=
-
-    # buffer/smooth/average
 
 
 class Operand(Operable):
@@ -181,6 +184,34 @@ class RetainBetween(TripleArgumentOperator):
             return val
         else:
             return 0
+
+
+class Constrain(TripleArgumentOperator):
+
+    def _calculate_value(self):
+        val = self._first_operand.value
+        bound_1 = self._second_operand.value
+        bound_2 = self._third_operand.value
+        upper = bound_1 if bound_1 > bound_2 else bound_2
+        lower = bound_2 if bound_2 < bound_1 else bound_1
+        return min(upper, max(lower, val))
+
+
+class Map(TripleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand, third_operand, fourth_operand, fifth_operand):
+        super().__init__(first_operand, second_operand, third_operand)
+        self._fourth_operand = self._wrap_if_needed(fourth_operand)
+        self._fifth_operand = self._wrap_if_needed(fifth_operand)
+
+    def _calculate_value(self):
+        val = self._first_operand.value
+        in_start = self._second_operand.value
+        in_stop = self._third_operand.value
+        out_start = self._fourth_operand.value
+        out_stop = self._fifth_operand.value
+
+        return out_start + (out_stop - out_start) * ((val - in_start) / (in_stop - in_start))
 
 
 class ReduceNoise(DoubleArgumentOperator):

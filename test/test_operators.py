@@ -313,6 +313,121 @@ class TestRetainBetween(unittest.TestCase):
         self.assertEqual(0, n1.retain_between(0, 2).value)
 
 
+class TestConstrain(unittest.TestCase):
+
+    def test_between(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=2)
+        n3 = Operand(value=4)
+        self.assertEqual(3, n1.constrain(n2, n3).value)
+
+    def test_below(self):
+        n1 = Operand(value=2)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(3, n1.constrain(n2, n3).value)
+
+    def test_above(self):
+        n1 = Operand(value=7)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(5, n1.constrain(n2, n3).value)
+
+    def test_equal_to_lower(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(3, n1.constrain(n2, n3).value)
+
+    def test_equal_to_upper(self):
+        n1 = Operand(value=5)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(5, n1.constrain(n2, n3).value)
+
+    def test_between_reversed(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=4)
+        n3 = Operand(value=2)
+        self.assertEqual(3, n1.constrain(n2, n3).value)
+
+    def test_below_reversed(self):
+        n1 = Operand(value=2)
+        n2 = Operand(value=5)
+        n3 = Operand(value=3)
+        self.assertEqual(3, n1.constrain(n2, n3).value)
+
+    def test_above_reversed(self):
+        n1 = Operand(value=7)
+        n2 = Operand(value=5)
+        n3 = Operand(value=3)
+        self.assertEqual(5, n1.constrain(n2, n3).value)
+
+
+    def test_wrap(self):
+        n1 = Operand(value=3)
+
+        self.assertEqual(3, n1.constrain(2, 4).value)
+        self.assertEqual(5, n1.constrain(5, 7).value)
+        self.assertEqual(2, n1.constrain(0, 2).value)
+
+
+class TestMap(unittest.TestCase):
+
+    def test_simple_forward(self):
+        n1 = Operand(value=2)
+        n2 = Operand(value=0)
+        n3 = Operand(value=10)
+        n4 = Operand(value=0)
+        n5 = Operand(value=100)
+        self.assertEqual(20, n1.map(n2, n3, n4, n5).value)
+
+    def test_simple_reverse(self):
+        n1 = Operand(value=2)
+        n2 = Operand(value=0)
+        n3 = Operand(value=10)
+        n4 = Operand(value=100)
+        n5 = Operand(value=0)
+        self.assertEqual(80, n1.map(n2, n3, n4, n5).value)
+
+    def test_simple_above_constrained(self):
+        n1 = Operand(value=22)
+        n2 = Operand(value=10)
+        n3 = Operand(value=20)
+        n4 = Operand(value=20)
+        n5 = Operand(value=100)
+        self.assertEqual(100, n1.map(n2, n3, n4, n5).value)
+
+    def test_simple_below_constrained(self):
+        n1 = Operand(value=8)
+        n2 = Operand(value=10)
+        n3 = Operand(value=20)
+        n4 = Operand(value=20)
+        n5 = Operand(value=100)
+        self.assertEqual(20, n1.map(n2, n3, n4, n5).value)
+
+    def test_simple_above_unconstrained(self):
+        n1 = Operand(value=22)
+        n2 = Operand(value=10)
+        n3 = Operand(value=20)
+        n4 = Operand(value=20)
+        n5 = Operand(value=100)
+        self.assertEqual(116, n1.map(n2, n3, n4, n5, constrain=False).value)
+
+    def test_simple_below_unconstrained(self):
+        n1 = Operand(value=8)
+        n2 = Operand(value=10)
+        n3 = Operand(value=20)
+        n4 = Operand(value=20)
+        n5 = Operand(value=100)
+        self.assertEqual(4, n1.map(n2, n3, n4, n5, constrain=False).value)
+
+    def test_wrap(self):
+        n1 = Operand(value=0.8)
+        self.assertEqual(1360, n1.map(0, 1, 800, 1500).value)
+
+
+
 class TestReduceNoise(unittest.TestCase):
 
     def test_start_to_up(self):
