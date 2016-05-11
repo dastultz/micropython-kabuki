@@ -10,14 +10,20 @@ class Controller:
 
     def input(self, supplier):
         """ Create and register an input.
-        :param supplier: A function or object with a value property
-        :return: An operand that can be operated on. You must call update()
-        before the first value is available.
+        :param supplier: A function that returns a value, or an object with a value property,
+            or an object with an update method
+        :return: For true suppliers, an operand that can be operated on. You must call update()
+            before the first value is available. For updatable objects, the original object.
         """
         if callable(supplier):
             operand = FunctionInput(supplier)
         elif hasattr(supplier, "value"):
             operand = ValueInput(supplier)
+        elif hasattr(supplier, "update"):
+            update_function = getattr(supplier, "update")
+            if not callable(update_function):
+                raise RuntimeError("input supplier \"update\" is not callable")
+            operand = supplier # not sure this is really right, want to add to _inputs but maybe not return anything
         else:
             raise RuntimeError("input supplier must be callable or have a value property")
         self._inputs.append(operand)

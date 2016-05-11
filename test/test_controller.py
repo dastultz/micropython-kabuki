@@ -40,6 +40,15 @@ class TestController(unittest.TestCase):
         except RuntimeError:
             pass
 
+    def test_bad_input_update_not_callable(self):
+        """ input supplier has update property but not callable """
+        controller = Controller()
+        try:
+            controller.input(BadUpdateableSupplier())
+            self.fail("expected exception")
+        except RuntimeError:
+            pass
+
     def test_bad_output(self):
         """ output consumer is not callable, does not have value property """
         controller = Controller()
@@ -48,6 +57,12 @@ class TestController(unittest.TestCase):
             self.fail("expected exception")
         except RuntimeError:
             pass
+
+
+class BadUpdateableSupplier:
+
+    def __init__(self):
+        self.update = True
 
 
 class CustomValueOutput:
@@ -149,5 +164,28 @@ class TestFunctionInput(unittest.TestCase):
             self.fail("expected exception")
         except RuntimeError:
             pass
+
+
+class CustomUpdateInput():
+
+    def __init__(self):
+        self.called = False
+
+    def update(self):
+        self.called = True
+
+
+class TestInputUpdate(unittest.TestCase):
+
+    def test_simple(self):
+        controller = Controller()
+        a = CustomUpdateInput()
+        b = controller.input(a)
+
+        self.assertTrue(a == b)
+        self.assertFalse(a.called)
+        controller.update()
+        self.assertTrue(a.called)
+
 
 
