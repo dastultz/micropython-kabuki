@@ -12,7 +12,10 @@ class TestAdd(unittest.TestCase):
         op = Add(n1, n2)
         self.assertEqual(5.25, op.value)
 
-        n1.value = 1.75
+        n1._value = 1.75
+        self.assertEqual(5.25, op.value) # cached
+        n1.reset()
+        op.reset()
         self.assertEqual(5.5, op.value)
 
     def test_compound(self):
@@ -57,7 +60,10 @@ class TestNeg(unittest.TestCase):
         op = Neg(n)
         self.assertEqual(-1.5, op.value)
 
-        n.value = -1.7
+        n._value = -1.7
+        self.assertEqual(-1.5, op.value) # cached
+        n.reset()
+        op.reset()
         self.assertEqual(1.7, op.value)
 
     def test_compound(self):
@@ -95,7 +101,10 @@ class TestSub(unittest.TestCase):
         op = Sub(n1, n2)
         self.assertEqual(1.25, op.value)
 
-        n1.value = 1.75
+        n1._value = 1.75
+        self.assertEqual(1.25, op.value) # cached
+        n1.reset()
+        op.reset()
         self.assertEqual(1.5, op.value)
 
     def test_compound(self):
@@ -138,7 +147,10 @@ class TestAbs(unittest.TestCase):
         op = Abs(n)
         self.assertEqual(1.6, op.value)
 
-        n.value = -1.7
+        n._value = -1.7
+        self.assertEqual(1.6, op.value) # cached
+        n.reset()
+        op.reset()
         self.assertEqual(1.7, op.value)
 
     def test_compound(self):
@@ -166,7 +178,10 @@ class TestDiv(unittest.TestCase):
         op = Div(n1, n2)
         self.assertEqual(2.0, op.value)
 
-        n1.value = 6.3
+        n1._value = 6.3
+        self.assertEqual(2.0, op.value) # cached
+        n1.reset()
+        op.reset()
         self.assertAlmostEqual(2.03, op.value, 2)
 
     def test_compound(self):
@@ -205,7 +220,10 @@ class TestMul(unittest.TestCase):
         op = Mul(n1, n2)
         self.assertAlmostEqual(19.22, op.value, 2)
 
-        n1.value = 6.3
+        n1._value = 6.3
+        self.assertAlmostEqual(19.22, op.value, 2) # cached
+        n1.reset()
+        op.reset()
         self.assertAlmostEqual(19.53, op.value, 2)
 
     def test_compound(self):
@@ -363,7 +381,6 @@ class TestConstrain(unittest.TestCase):
         n3 = Operand(value=3)
         self.assertEqual(5, n1.constrain(n2, n3).value)
 
-
     def test_wrap(self):
         n1 = Operand(value=3)
 
@@ -427,55 +444,93 @@ class TestMap(unittest.TestCase):
         self.assertEqual(1360, n1.map(0, 1, 800, 1500).value)
 
 
-
 class TestReduceNoise(unittest.TestCase):
 
     def test_start_to_up(self):
         n = Operand(value=7)
         op = n.reduce_noise(3)
         self.assertEqual(7, op.value)
-        n.value = 9
+        n._value = 9
+        self.assertEqual(7, op.value) # cached
+        n.reset()
+        op.reset()
         self.assertEqual(9, op.value)
-        n.value = 7
+        n._value = 7
+        n.reset()
+        op.reset()
         self.assertEqual(9, op.value)
-        n.value = 8
+        n._value = 8
+        n.reset()
+        op.reset()
         self.assertEqual(9, op.value)
-        n.value = 10
+        n._value = 10
+        n.reset()
+        op.reset()
         self.assertEqual(10, op.value)
-        n.value = 8
+        n._value = 8
+        n.reset()
+        op.reset()
         self.assertEqual(10, op.value)
-        n.value = 7
+        n._value = 7
+        n.reset()
+        op.reset()
         self.assertEqual(7, op.value)
-        n.value = 6
+        n._value = 6
+        n.reset()
+        op.reset()
         self.assertEqual(6, op.value)
-        n.value = 8
+        n._value = 8
+        n.reset()
+        op.reset()
         self.assertEqual(6, op.value)
-        n.value = 7
+        n._value = 7
+        n.reset()
+        op.reset()
         self.assertEqual(6, op.value)
-        n.value = 5
+        n._value = 5
+        n.reset()
+        op.reset()
         self.assertEqual(5, op.value)
-        n.value = 6
+        n._value = 6
+        n.reset()
+        op.reset()
         self.assertEqual(5, op.value)
-        n.value = 10
+        n._value = 10
+        n.reset()
+        op.reset()
         self.assertEqual(10, op.value)
 
     def test_start_to_down(self):
         n = Operand(value=-3)
         op = n.reduce_noise(3)
         self.assertEqual(-3, op.value)
-        n.value = -5
+        n._value = -5
+        n.reset()
+        op.reset()
         self.assertEqual(-5, op.value)
-        n.value = -4
+        n._value = -4
+        n.reset()
+        op.reset()
         self.assertEqual(-5, op.value)
-        n.value = -3
+        n._value = -3
+        n.reset()
+        op.reset()
         self.assertEqual(-5, op.value)
-        n.value = -6
+        n._value = -6
+        n.reset()
+        op.reset()
         self.assertEqual(-6, op.value)
-        n.value = -7
+        n._value = -7
+        n.reset()
+        op.reset()
         self.assertEqual(-7, op.value)
-        n.value = -6
+        n._value = -6
+        n.reset()
+        op.reset()
         self.assertEqual(-7, op.value)
-        n.value = -3
+        n._value = -3
+        n.reset()
+        op.reset()
         self.assertEqual(-3, op.value)
 
 
@@ -492,3 +547,83 @@ class TestIntegration(unittest.TestCase):
 
         op = (n1 + n2) / (n3 + n4) * n2
         self.assertAlmostEqual(0.857, op.value, 2)
+
+
+class CalcCountingOperator(Operator):
+
+    def __init__(self):
+        super().__init__()
+        self.count = 0
+
+    def reset(self):
+        super().reset()
+        self.count = 0
+
+    def _calculate_value(self):
+        self.count += 1
+        return 1
+
+
+class TestCacheValue(unittest.TestCase):
+
+    def test_calc(self):
+        op = CalcCountingOperator()
+        self.assertEqual(0, op.count)
+        v = op.value
+        self.assertEqual(1, op.count)
+        v = op.value
+        self.assertEqual(1, op.count)
+        op.reset()
+        self.assertEqual(0, op.count)
+        v = op.value
+        self.assertEqual(1, op.count)
+        v = op.value
+        self.assertEqual(1, op.count)
+
+    def test_reset(self):
+        n1 = Operand(value=10)
+        n2 = Operand(value=20)
+        n3 = Operand(value=30)
+        n4 = Operand(value=40)
+        n5 = Operand(value=50)
+
+        op = MultiOperandAddOperator(n1, n2, n3, n4, n5)
+        self.assertEqual(150, op.value)
+        n1._value = 11
+        self.assertEqual(150, op.value)
+        op.reset()
+        self.assertEqual(151, op.value)
+        n2._value = 21
+        self.assertEqual(151, op.value)
+        op.reset()
+        self.assertEqual(152, op.value)
+        n3._value = 31
+        self.assertEqual(152, op.value)
+        op.reset()
+        self.assertEqual(153, op.value)
+        n4._value = 41
+        self.assertEqual(153, op.value)
+        op.reset()
+        self.assertEqual(154, op.value)
+        n5._value = 51
+        self.assertEqual(154, op.value)
+        op.reset()
+        self.assertEqual(155, op.value)
+
+
+class MultiOperandAddOperator(QuintupleArgumentOperator):
+    """ This operator should always extend the operator with the most arguments.
+    The purpose is to test that eaxh *ArgumentOperator class handles caching and reset.
+    """
+
+    def _calculate_value(self):
+        n1 = self._first_operand.value
+        n2 = self._second_operand.value
+        n3 = self._third_operand.value
+        n4 = self._fourth_operand.value
+        n5 = self._fifth_operand.value
+
+        return n1 + n2 + n3 + n4 + n5
+
+
+

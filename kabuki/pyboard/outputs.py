@@ -7,12 +7,7 @@ class LedOut:
     def __init__(self, led_number):
         self._led = pyb.LED(led_number)
 
-    @property
-    def value(self):
-        return None
-
-    @value.setter
-    def value(self, value):
+    def consume(self, value):
         if value == 0:
             self._led.off()
         else:
@@ -25,11 +20,6 @@ class ServoOut:
     def __init__(self, servo_number):
         self._servo = pyb.Servo(servo_number)
 
-    @property
-    def value(self):
-        return None
-
-    @value.setter
-    def value(self, value):
-        # todo: should we consrain angle for safety?
+    def consume(self, value):
+        # todo: should we constrain angle for safety?
         self._servo.angle(value)

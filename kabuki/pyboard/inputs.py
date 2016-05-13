@@ -3,13 +3,13 @@ from kabuki.operators import Operator
 from ppm_decoder import Decoder
 
 
-class UserSwitchIn:
+class UserSwitchIn(Operator):
 
     def __init__(self):
+        super().__init__()
         self._sw = pyb.Switch()
 
-    @property
-    def value(self):
+    def _calculate_value(self):
         return self._sw()
 
 
@@ -41,6 +41,7 @@ class AccelIn:
 class AxisOperator(Operator):
 
     def __init__(self, all_axes, axis):
+        super().__init__()
         self._all_axes = all_axes
         self._axis = axis
 
@@ -60,6 +61,7 @@ class PpmIn:
 class ChannelOperator(Operator):
 
     def __init__(self, channel: int, ppm_in):
+        super().__init__()
         self._channel = channel
         self._ppm_in = ppm_in
 

@@ -56,50 +56,65 @@ class Operable:
         return ReduceNoise(self, band)
 
 
-class Operand(Operable):
-    """ A wrapper around a value that can be operated on."""
-
-    def __init__(self, value=0.0):
-        self._value = value
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-
-
+# todo: this should be named Calculating or something
 class Operator(Operable):
-    """ Performs "lazy" or deferred calculations on objects."""
+    """ Performs "lazy" or deferred calculations on objects.
+        Calculations are cached between calls to reset(). """
+
+    def __init__(self):
+        super().__init__()
+        self._cached_value = None
 
     @property
     def value(self):
-        return self._calculate_value()
+        if self._cached_value is None:
+            self._cached_value = self._calculate_value()
+        return self._cached_value
+
+    def reset(self):
+        self._cached_value = None
 
     def _calculate_value(self):
         pass
+
+
+# todo: this should be named Value or Literal something
+class Operand(Operator):
+    """ A wrapper around a literal value that can be operated on. """
+
+    def __init__(self, value=0.0):
+        super().__init__()
+        self._value = value
+
+    def _calculate_value(self):
+        return self._value
 
 
 class SingleArgumentOperator(Operator):
 
     def __init__(self, operand):
         super().__init__()
-        self._operand = operand
-
-
-class DoubleArgumentOperator(Operator):
-
-    def __init__(self, first_operand, second_operand):
-        super().__init__()
-        self._first_operand = self._wrap_if_needed(first_operand)
-        self._second_operand = self._wrap_if_needed(second_operand)
+        self._first_operand = self._wrap_if_needed(operand)
 
     def _wrap_if_needed(self, operand):
         if not hasattr(operand, "value"):
             operand = Operand(value=operand)
         return operand
+
+    def reset(self):
+        super().reset()
+        self._first_operand.reset()
+
+
+class DoubleArgumentOperator(SingleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand):
+        super().__init__(first_operand)
+        self._second_operand = self._wrap_if_needed(second_operand)
+
+    def reset(self):
+        super().reset()
+        self._second_operand.reset()
 
 
 class TripleArgumentOperator(DoubleArgumentOperator):
@@ -107,6 +122,32 @@ class TripleArgumentOperator(DoubleArgumentOperator):
     def __init__(self, first_operand, second_operand, third_operand):
         super().__init__(first_operand, second_operand)
         self._third_operand = self._wrap_if_needed(third_operand)
+
+    def reset(self):
+        super().reset()
+        self._third_operand.reset()
+
+
+class QuadrupleArgumentOperator(TripleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand, third_operand, fourth_operand):
+        super().__init__(first_operand, second_operand, third_operand)
+        self._fourth_operand = self._wrap_if_needed(fourth_operand)
+
+    def reset(self):
+        super().reset()
+        self._fourth_operand.reset()
+
+
+class QuintupleArgumentOperator(QuadrupleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand, third_operand, fourth_operand, fifth_operand):
+        super().__init__(first_operand, second_operand, third_operand, fourth_operand)
+        self._fifth_operand = self._wrap_if_needed(fifth_operand)
+
+    def reset(self):
+        super().reset()
+        self._fifth_operand.reset()
 
 
 class Add(DoubleArgumentOperator):
@@ -124,7 +165,7 @@ class Sub(DoubleArgumentOperator):
 class Neg(SingleArgumentOperator):
 
     def _calculate_value(self):
-        value = self._operand.value
+        value = self._first_operand.value
         if value is True:
             return False
         elif value is False:
@@ -136,7 +177,7 @@ class Neg(SingleArgumentOperator):
 class Abs(SingleArgumentOperator):
 
     def _calculate_value(self):
-        return abs(self._operand.value)
+        return abs(self._first_operand.value)
 
 
 class Div(DoubleArgumentOperator):
@@ -197,12 +238,7 @@ class Constrain(TripleArgumentOperator):
         return min(upper, max(lower, val))
 
 
-class Map(TripleArgumentOperator):
-
-    def __init__(self, first_operand, second_operand, third_operand, fourth_operand, fifth_operand):
-        super().__init__(first_operand, second_operand, third_operand)
-        self._fourth_operand = self._wrap_if_needed(fourth_operand)
-        self._fifth_operand = self._wrap_if_needed(fifth_operand)
+class Map(QuintupleArgumentOperator):
 
     def _calculate_value(self):
         val = self._first_operand.value
