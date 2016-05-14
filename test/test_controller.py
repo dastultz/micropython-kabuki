@@ -13,12 +13,12 @@ class TestController(unittest.TestCase):
         controller = Controller()
         vi = CustomValueSupplier()
         fi = good_input_function
-        op1 = controller.input(vi)
-        op2 = controller.input(fi)
+        op1 = controller.node_from_object(vi)
+        op2 = controller.node_from_function(fi)
 
         cvo = CustomValueConsumer()
-        controller.output(op1, cvo)
-        controller.output(op2, output_setter_function)
+        controller.wire_output(op1, cvo)
+        controller.wire_output(op2, output_setter_function)
 
         # operators calculate values right away
         self.assertEqual(3.5, op1.value, "should be default value of CustomValueInput")
@@ -32,20 +32,22 @@ class TestController(unittest.TestCase):
         self.assertEqual(3.5, cvo.value, "should be default value of CustomValueInput")
         self.assertEqual("yay!", function_output_value, "should be value returned by good_input_function")
 
-    def test_bad_input(self):
-        """ input supplier is not callable, does not have value property """
+    def test_poll_input_not_callable(self):
+        """ input supplier has poll property but not callable """
         controller = Controller()
         try:
-            controller.input("Fred")
+            controller.poll_input(BadSupplierNotCallable())
+            controller.update()
             self.fail("expected exception")
         except RuntimeError:
             pass
 
-    def test_bad_input_update_not_callable(self):
-        """ input supplier has update property but not callable """
+    def test_poll_input_no_poll(self):
+        """ input supplier does not have poll property """
         controller = Controller()
         try:
-            controller.input(BadUpdateableSupplier())
+            controller.poll_input(BadSupplierNotCallable())
+            controller.update()
             self.fail("expected exception")
         except RuntimeError:
             pass
@@ -54,16 +56,22 @@ class TestController(unittest.TestCase):
         """ output consumer is not callable, does not have value property """
         controller = Controller()
         try:
-            controller.output(Operand(1.23), "Fred")
+            controller.wire_output(Operand(1.23), "Fred")
             self.fail("expected exception")
         except RuntimeError:
             pass
 
 
-class BadUpdateableSupplier:
+class BadSupplierNoPoll:
 
     def __init__(self):
-        self.update = True
+        self.monkey = True
+
+
+class BadSupplierNotCallable:
+
+    def __init__(self):
+        self.poll = True
 
 
 class CustomValueConsumer:
@@ -156,13 +164,12 @@ class TestFunctionInput(unittest.TestCase):
             pass
 
 
-# todo: "pollable" input or something
-class CustomUpdateSupplier():
+class CustomPollableSupplier():
 
     def __init__(self):
         self.called = False
 
-    def update(self):
+    def poll(self):
         self.called = True
 
 
@@ -170,8 +177,8 @@ class TestInputUpdate(unittest.TestCase):
 
     def test_simple(self):
         controller = Controller()
-        a = CustomUpdateSupplier()
-        controller.input(a)
+        a = CustomPollableSupplier()
+        controller.poll_input(a)
 
         self.assertFalse(a.called)
         controller.update()
@@ -183,11 +190,10 @@ class TestCalcCaching(unittest.TestCase):
     def test_simple(self):
         controller = Controller()
         n1 = Operand(value=2)
-        controller.input(n1)
         n2 = Operand(value=4)
         n3 = n1 + n2
         out = CustomValueConsumer()
-        controller.output(n3, out)
+        controller.wire_output(n3, out)
         controller.update()
         self.assertEqual(6, out.value)
         n1._value = 3

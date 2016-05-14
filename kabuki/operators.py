@@ -56,7 +56,6 @@ class Operable:
         return ReduceNoise(self, band)
 
 
-# todo: this should be named Calculating or something
 class Operator(Operable):
     """ Performs "lazy" or deferred calculations on objects.
         Calculations are cached between calls to reset(). """
@@ -78,7 +77,6 @@ class Operator(Operable):
         pass
 
 
-# todo: this should be named Value or Literal something
 class Operand(Operator):
     """ A wrapper around a literal value that can be operated on. """
 

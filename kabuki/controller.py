@@ -8,34 +8,34 @@ class Controller:
         self._inputs = []
         self._outputs = []
 
-    # todo: utility methods to create operator from function and from object
-    # todo: convert this to "register pollable" object
-    def input(self, supplier):
-        """ Create and register an input.
-        :param supplier: A function that returns a value, or an object with a value property,
-            or an object with an update method
-        :return: For true suppliers, an operand that can be operated on.
-            For updatable objects, the original object.
+    def node_from_function(self, supplier):
         """
-        if callable(supplier):
-            operand = FunctionInput(supplier)
-        elif hasattr(supplier, "value"):
-            operand = ValueInput(supplier)
-        elif hasattr(supplier, "update"):
-            update_function = getattr(supplier, "update")
-            if not callable(update_function):
-                raise RuntimeError("input supplier \"update\" is not callable")
-            self._inputs.append(supplier)
-            operand = None
-        else:
-            raise RuntimeError("input supplier must be callable or have a value property")
-        return operand
+        Create a node with a value supplied by a function.
+        :param supplier: A function that returns a value.
+        :return: A node that can be operated on.
+        """
+        return FunctionInput(supplier)
 
-    def output(self, operand, consumer):
-        """ Create and register an output.
+    def node_from_object(self, supplier):
+        """ create a node with a value supplied from an object
+        :param supplier: an object with a value property
+        :return: a node that can be operated on
+        """
+        return ValueInput(supplier)
+
+    def poll_input(self, supplier):
+        """
+        Registers an object to be polled with each loop.
+        :param supplier: An object with a poll function.
+        """
+        self._inputs.append(supplier)
+
+    def wire_output(self, operand, consumer):
+        """
+        Connect an operand to an output (consumer)
         :param operand: The last operand to connect to the output.
         :param consumer: A function that can receive a value or an object with a value
-        property. You must call update() for the first value to passed to the consumer.
+        property.
         """
         if callable(consumer):
             self._outputs.append(FunctionOutput(operand, consumer))
@@ -54,10 +54,17 @@ class Controller:
 
         # poll non-auto-calculating inputs
         for input in self._inputs:
-            input.update()
+            try:
+                input.poll()
+            except TypeError:
+                raise RuntimeError("object passed to poll_input() must have a poll() function.")
 
         for output in self._outputs:
             output.update()
+
+    def run(self):
+        while True:
+            self.update()
 
 
 class ValueInput(Operator):
@@ -72,7 +79,7 @@ class ValueInput(Operator):
 
 
 class FunctionInput(Operator):
-    """ Adapts and arbitrary input (function returning a value) to an operand."""
+    """ Adapts an arbitrary input (function returning a value) to an operand."""
 
     def __init__(self, value_getter_function):
         super().__init__()
