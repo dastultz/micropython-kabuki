@@ -22,7 +22,7 @@ class AccelIn:
         self._accel.write(0x07, self._accel.read(0x07) | 0b00000001)  # return to active mode
         self._values = {"x": 0, "y": 0, "z": 0}
 
-    def update(self):
+    def poll(self):
         x, y, z = self._accel.filtered_xyz()
         self._values["x"] = x
         self._values["y"] = y
