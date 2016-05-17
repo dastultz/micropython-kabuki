@@ -1,6 +1,6 @@
 from kabuki.operators import Operand, Operator
 
-
+# todo: consider renaming this if we expand on "façade" support
 class Controller:
     """ This class is used to create and manage inputs and outputs"""
 
@@ -22,6 +22,13 @@ class Controller:
         :return: a node that can be operated on
         """
         return ValueInput(supplier)
+
+    def node_from_value(self, value):
+        """ create a node from a literal value
+        :param value: a literal value
+        :return: a node that can be operated on
+        """
+        return Operand(value=value)
 
     def poll_input(self, supplier):
         """
