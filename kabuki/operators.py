@@ -33,6 +33,18 @@ class Operable:
     def __abs__(self):
         return Abs(self)
 
+    def __gt__(self, other):
+        return GreaterThan(self, other)
+
+    def __lt__(self, other):
+        return LessThan(self, other)
+
+    def __ge__(self, other):
+        return GreaterOrEqual(self, other)
+
+    def __le__(self, other):
+        return LessOrEqual(self, other)
+
     def filter_above(self, other):
         return FilterAbove(self, other)
 
@@ -191,6 +203,27 @@ class Mul(DoubleArgumentOperator):
         return self._first_operand.value * self._second_operand.value
 
 
+class GreaterThan(DoubleArgumentOperator):
+
+    def _calculate_value(self):
+        return self._first_operand.value > self._second_operand.value
+
+
+class LessThan(DoubleArgumentOperator):
+    def _calculate_value(self):
+        return self._first_operand.value < self._second_operand.value
+
+
+class GreaterOrEqual(DoubleArgumentOperator):
+    def _calculate_value(self):
+        return self._first_operand.value >= self._second_operand.value
+
+
+class LessOrEqual(DoubleArgumentOperator):
+    def _calculate_value(self):
+        return self._first_operand.value <= self._second_operand.value
+
+
 class FilterAbove(DoubleArgumentOperator):
 
     def _calculate_value(self):
@@ -245,7 +278,11 @@ class Map(QuintupleArgumentOperator):
         out_start = self._fourth_operand.value
         out_stop = self._fifth_operand.value
 
-        return out_start + (out_stop - out_start) * ((val - in_start) / (in_stop - in_start))
+        return _map(val, in_start, in_stop, out_start, out_stop)
+
+
+def _map(value, in_start, in_stop, out_start, out_stop):
+    return out_start + (out_stop - out_start) * ((value - in_start) / (in_stop - in_start))
 
 
 class ReduceNoise(DoubleArgumentOperator):
@@ -273,3 +310,77 @@ class ReduceNoise(DoubleArgumentOperator):
             value = current_value
 
         return value
+
+
+class Cycler(DoubleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand, initial_position = 0):
+        super().__init__(first_operand, second_operand)
+        self._position = initial_position
+
+    def _calculate_value(self):
+        length = self._first_operand.value
+        delta = self._second_operand.value
+        self._position += delta
+        # todo: consider wrap around vs stop
+        # todo: how could we do a ping/pong? delta is external
+        if self._position > length:
+            self._position = 0
+        elif self._position < 0:
+            self._position = length
+        return self._position
+
+    def channel(self, keys):
+        return Channel(self, self._first_operand, keys)
+
+
+class Channel(DoubleArgumentOperator):
+
+    def __init__(self, first_operand, second_operand, keys):
+        # todo: must have at least 2 keys
+        # todo: all keys must be 2 Tuples
+        super().__init__(first_operand, second_operand)
+        self._xlist = []
+        self._ylist = []
+        for x, y in keys:
+            x = self._wrap_if_needed(x)
+            y = self._wrap_if_needed(y)
+            self._xlist.append(x)
+            self._ylist.append(y)
+        self._key_count = len(keys)
+
+    def _calculate_value(self):
+        # find keys where position between two x's, interpolate
+        position = self._first_operand.value
+        cycler_length = self._second_operand.value
+        left_x_count = 0 # number of keys to the left of current position
+        # assumes x values are sorted low to high
+        for v in self._xlist:
+            if v.value <= position:
+                left_x_count += 1
+
+        if left_x_count == self._key_count:
+            # pos is to right of all keys, flip first after last
+            left_x_index = -1
+            right_x_index = 0
+            left_x = self._xlist[left_x_index].value
+            right_x = self._xlist[right_x_index].value + cycler_length
+            left_y = self._ylist[left_x_index].value
+            right_y = self._ylist[right_x_index].value
+        elif left_x_count == 0:
+            # pos is to left of all keys, flip last before first
+            left_x_index = -1
+            right_x_index = 0
+            left_x = self._xlist[left_x_index].value - cycler_length
+            right_x = self._xlist[right_x_index].value
+            left_y = self._ylist[left_x_index].value
+            right_y = self._ylist[right_x_index].value
+        else:
+            left_x_index = left_x_count - 1
+            right_x_index = left_x_count
+            left_x = self._xlist[left_x_index].value
+            right_x = self._xlist[right_x_index].value
+            left_y = self._ylist[left_x_index].value
+            right_y = self._ylist[right_x_index].value
+
+        return _map(position, left_x, right_x, left_y, right_y)

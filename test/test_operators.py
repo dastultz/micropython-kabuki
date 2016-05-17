@@ -14,7 +14,6 @@ class TestAdd(unittest.TestCase):
 
         n1._value = 1.75
         self.assertEqual(5.25, op.value) # cached
-        n1.reset()
         op.reset()
         self.assertEqual(5.5, op.value)
 
@@ -62,7 +61,6 @@ class TestNeg(unittest.TestCase):
 
         n._value = -1.7
         self.assertEqual(-1.5, op.value) # cached
-        n.reset()
         op.reset()
         self.assertEqual(1.7, op.value)
 
@@ -103,7 +101,6 @@ class TestSub(unittest.TestCase):
 
         n1._value = 1.75
         self.assertEqual(1.25, op.value) # cached
-        n1.reset()
         op.reset()
         self.assertEqual(1.5, op.value)
 
@@ -149,7 +146,6 @@ class TestAbs(unittest.TestCase):
 
         n._value = -1.7
         self.assertEqual(1.6, op.value) # cached
-        n.reset()
         op.reset()
         self.assertEqual(1.7, op.value)
 
@@ -180,7 +176,6 @@ class TestDiv(unittest.TestCase):
 
         n1._value = 6.3
         self.assertEqual(2.0, op.value) # cached
-        n1.reset()
         op.reset()
         self.assertAlmostEqual(2.03, op.value, 2)
 
@@ -222,7 +217,6 @@ class TestMul(unittest.TestCase):
 
         n1._value = 6.3
         self.assertAlmostEqual(19.22, op.value, 2) # cached
-        n1.reset()
         op.reset()
         self.assertAlmostEqual(19.53, op.value, 2)
 
@@ -252,6 +246,70 @@ class TestMul(unittest.TestCase):
 
         n3 = 3 * n1
         self.assertEqual(n3.value, 15)
+
+
+class TestGreaterThan(unittest.TestCase):
+
+    def test_all(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=7)
+        self.assertFalse((n1 > n2).value)
+
+        n1 = Operand(value=7)
+        n2 = Operand(value=3)
+        self.assertTrue((n1 > n2).value)
+
+        n1 = Operand(value=3)
+        n2 = Operand(value=3)
+        self.assertFalse((n1 > n2).value)
+
+
+class TestLessThan(unittest.TestCase):
+
+    def test_all(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=7)
+        self.assertTrue((n1 < n2).value)
+
+        n1 = Operand(value=7)
+        n2 = Operand(value=3)
+        self.assertFalse((n1 < n2).value)
+
+        n1 = Operand(value=3)
+        n2 = Operand(value=3)
+        self.assertFalse((n1 < n2).value)
+
+
+class TestGreaterOrEqual(unittest.TestCase):
+
+    def test_all(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=7)
+        self.assertFalse((n1 >= n2).value)
+
+        n1 = Operand(value=7)
+        n2 = Operand(value=3)
+        self.assertTrue((n1 >= n2).value)
+
+        n1 = Operand(value=3)
+        n2 = Operand(value=3)
+        self.assertTrue((n1 >= n2).value)
+
+
+class TestLessOrEqual(unittest.TestCase):
+
+    def test_all(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=7)
+        self.assertTrue((n1 <= n2).value)
+
+        n1 = Operand(value=7)
+        n2 = Operand(value=3)
+        self.assertFalse((n1 <= n2).value)
+
+        n1 = Operand(value=3)
+        n2 = Operand(value=3)
+        self.assertTrue((n1 <= n2).value)
 
 
 class TestFilterAbove(unittest.TestCase):
@@ -452,51 +510,39 @@ class TestReduceNoise(unittest.TestCase):
         self.assertEqual(7, op.value)
         n._value = 9
         self.assertEqual(7, op.value) # cached
-        n.reset()
         op.reset()
         self.assertEqual(9, op.value)
         n._value = 7
-        n.reset()
         op.reset()
         self.assertEqual(9, op.value)
         n._value = 8
-        n.reset()
         op.reset()
         self.assertEqual(9, op.value)
         n._value = 10
-        n.reset()
         op.reset()
         self.assertEqual(10, op.value)
         n._value = 8
-        n.reset()
         op.reset()
         self.assertEqual(10, op.value)
         n._value = 7
-        n.reset()
         op.reset()
         self.assertEqual(7, op.value)
         n._value = 6
-        n.reset()
         op.reset()
         self.assertEqual(6, op.value)
         n._value = 8
-        n.reset()
         op.reset()
         self.assertEqual(6, op.value)
         n._value = 7
-        n.reset()
         op.reset()
         self.assertEqual(6, op.value)
         n._value = 5
-        n.reset()
         op.reset()
         self.assertEqual(5, op.value)
         n._value = 6
-        n.reset()
         op.reset()
         self.assertEqual(5, op.value)
         n._value = 10
-        n.reset()
         op.reset()
         self.assertEqual(10, op.value)
 
@@ -505,31 +551,24 @@ class TestReduceNoise(unittest.TestCase):
         op = n.reduce_noise(3)
         self.assertEqual(-3, op.value)
         n._value = -5
-        n.reset()
         op.reset()
         self.assertEqual(-5, op.value)
         n._value = -4
-        n.reset()
         op.reset()
         self.assertEqual(-5, op.value)
         n._value = -3
-        n.reset()
         op.reset()
         self.assertEqual(-5, op.value)
         n._value = -6
-        n.reset()
         op.reset()
         self.assertEqual(-6, op.value)
         n._value = -7
-        n.reset()
         op.reset()
         self.assertEqual(-7, op.value)
         n._value = -6
-        n.reset()
         op.reset()
         self.assertEqual(-7, op.value)
         n._value = -3
-        n.reset()
         op.reset()
         self.assertEqual(-3, op.value)
 
@@ -626,4 +665,65 @@ class MultiOperandAddOperator(QuintupleArgumentOperator):
         return n1 + n2 + n3 + n4 + n5
 
 
+class TestCycler(unittest.TestCase):
 
+    def test_position_up(self):
+        length = 10
+        delta = 2
+        cycler = Cycler(length, delta)
+        self.assertEqual(2, cycler.value)
+        cycler.reset()
+        self.assertEqual(4, cycler.value)
+        cycler.reset()
+        self.assertEqual(6, cycler.value)
+        cycler.reset()
+        self.assertEqual(8, cycler.value)
+        cycler.reset()
+        self.assertEqual(10, cycler.value)
+        cycler.reset()
+        self.assertEqual(0, cycler.value)
+        cycler.reset()
+
+    def test_position_down(self):
+        length = 10
+        delta = -2
+        cycler = Cycler(length, delta, initial_position=6)
+        self.assertEqual(4, cycler.value)
+        cycler.reset()
+        self.assertEqual(2, cycler.value)
+        cycler.reset()
+        self.assertEqual(0, cycler.value)
+        cycler.reset()
+        self.assertEqual(10, cycler.value)
+
+
+class TestChannel(unittest.TestCase):
+
+    def test_middle(self):
+        length = 10
+        delta = 1
+        cycler = Cycler(length, delta, initial_position=3)
+        self.assertEqual(4, cycler.value)
+        keys = [(2, 3), (6, 2), (9, 5)]
+        channel = cycler.channel(keys)
+        self.assertEqual(2.5, channel.value)
+
+    def test_left(self):
+        length = 10
+        delta = 1
+        cycler = Cycler(length, delta, initial_position=0)
+        self.assertEqual(1, cycler.value)
+        keys = [(3, 3), (6, 2), (9, 5)]
+        channel = cycler.channel(keys)
+        # (-1, 5), (3, 3) = 2/4 * 2 + 3 = 4
+        self.assertEqual(4, channel.value)
+
+    def test_right(self):
+        length = 10
+        delta = 1
+        cycler = Cycler(length, delta, initial_position=8)
+        self.assertEqual(9, cycler.value)
+        keys = [(3, 3), (5, 2), (7, 5)]
+        # (7, 5), (13, 3) = 5 - 2/6 * 2 =
+        channel = cycler.channel(keys)
+        self.assertAlmostEqual(4.33, channel.value, 2)
