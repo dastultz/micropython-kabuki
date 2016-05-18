@@ -15,7 +15,7 @@ def node_from_function(supplier):
     return FunctionInput(supplier)
 
 
-def node_from_object(self, supplier):
+def node_from_object(supplier):
     """ create a node with a value supplied from an object
     :param supplier: an object with a value property
     :return: a node that can be operated on

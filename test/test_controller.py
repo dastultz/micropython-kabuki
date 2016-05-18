@@ -1,8 +1,8 @@
 import unittest
 
-from kabuki.controller import FunctionInput, ValueInput, Controller, ValueOutput, FunctionOutput, Output
-from kabuki.operators import Operand, Operator
-from test.test_operators import CalcCountingOperator
+import kabuki
+from kabuki.controller import FunctionInput, ValueInput, Controller, ValueOutput, FunctionOutput
+from kabuki.operators import Operand
 
 
 class TestController(unittest.TestCase):
@@ -13,8 +13,8 @@ class TestController(unittest.TestCase):
         controller = Controller()
         vi = CustomValueSupplier()
         fi = good_input_function
-        op1 = controller.node_from_object(vi)
-        op2 = controller.node_from_function(fi)
+        op1 = kabuki.node_from_object(vi)
+        op2 = kabuki.node_from_function(fi)
 
         cvo = CustomValueConsumer()
         controller.wire_output(op1, cvo)
