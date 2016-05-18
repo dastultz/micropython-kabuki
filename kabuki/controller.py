@@ -1,6 +1,7 @@
 from kabuki.operators import Operand, Operator
 
 # todo: consider renaming this if we expand on "façade" support
+# move static candidates to __init__? create default controller
 class Controller:
     """ This class is used to create and manage inputs and outputs"""
 

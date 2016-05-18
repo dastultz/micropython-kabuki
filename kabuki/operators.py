@@ -337,17 +337,20 @@ class Cycler(DoubleArgumentOperator):
 class Channel(DoubleArgumentOperator):
 
     def __init__(self, first_operand, second_operand, keys):
-        # todo: must have at least 2 keys
-        # todo: all keys must be 2 Tuples
         super().__init__(first_operand, second_operand)
-        self._xlist = []
-        self._ylist = []
-        for x, y in keys:
-            x = self._wrap_if_needed(x)
-            y = self._wrap_if_needed(y)
-            self._xlist.append(x)
-            self._ylist.append(y)
-        self._key_count = len(keys)
+        try:
+            self._xlist = []
+            self._ylist = []
+            for x, y in keys:
+                x = self._wrap_if_needed(x)
+                y = self._wrap_if_needed(y)
+                self._xlist.append(x)
+                self._ylist.append(y)
+            self._key_count = len(keys)
+        except:
+            raise RuntimeError("error parsing keys, must be list of 2 Tuples")
+        if self._key_count == 0:
+            raise RuntimeError("keys must have at least one key!")
 
     def _calculate_value(self):
         # find keys where position between two x's, interpolate
@@ -359,7 +362,15 @@ class Channel(DoubleArgumentOperator):
             if v.value <= position:
                 left_x_count += 1
 
-        if left_x_count == self._key_count:
+        # a little repetition here, but looking for performance
+        if 0 < left_x_count < self._key_count:
+            left_x_index = left_x_count - 1
+            right_x_index = left_x_count
+            left_x = self._xlist[left_x_index].value
+            right_x = self._xlist[right_x_index].value
+            left_y = self._ylist[left_x_index].value
+            right_y = self._ylist[right_x_index].value
+        elif left_x_count == self._key_count:
             # pos is to right of all keys, flip first after last
             left_x_index = -1
             right_x_index = 0
@@ -367,18 +378,11 @@ class Channel(DoubleArgumentOperator):
             right_x = self._xlist[right_x_index].value + cycler_length
             left_y = self._ylist[left_x_index].value
             right_y = self._ylist[right_x_index].value
-        elif left_x_count == 0:
+        else:  # left_x_count == 0:
             # pos is to left of all keys, flip last before first
             left_x_index = -1
             right_x_index = 0
             left_x = self._xlist[left_x_index].value - cycler_length
-            right_x = self._xlist[right_x_index].value
-            left_y = self._ylist[left_x_index].value
-            right_y = self._ylist[right_x_index].value
-        else:
-            left_x_index = left_x_count - 1
-            right_x_index = left_x_count
-            left_x = self._xlist[left_x_index].value
             right_x = self._xlist[right_x_index].value
             left_y = self._ylist[left_x_index].value
             right_y = self._ylist[right_x_index].value

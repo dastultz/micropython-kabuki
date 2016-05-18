@@ -727,3 +727,33 @@ class TestChannel(unittest.TestCase):
         # (7, 5), (13, 3) = 5 - 2/6 * 2 =
         channel = cycler.channel(keys)
         self.assertAlmostEqual(4.33, channel.value, 2)
+
+    def test_no_keys(self):
+        cycler = Cycler(10, 1, initial_position=1)
+        keys = []
+        try:
+            cycler.channel(keys)
+            self.fail("Expected exception.")
+        except RuntimeError:
+            pass  # expected
+
+    def test_keys_3_tuple(self):
+        cycler = Cycler(10, 1, initial_position=1)
+        keys = [(1, 2, 3), (2, 3, 4), (3, 4, 5)]
+        try:
+            cycler.channel(keys)
+            self.fail("Expected exception.")
+        except RuntimeError:
+            pass  # expected
+
+    def test_one_key_left(self):
+        cycler = Cycler(10, 1, initial_position=1)
+        keys = [(3, 3)]
+        channel = cycler.channel(keys)
+        self.assertEqual(3, channel.value)
+
+    def test_one_key_right(self):
+        cycler = Cycler(10, 1, initial_position=5)
+        keys = [(3, 3)]
+        channel = cycler.channel(keys)
+        self.assertEqual(3, channel.value)
