@@ -1,35 +1,12 @@
 from kabuki.operators import Operand, Operator
 
-# todo: consider renaming this if we expand on "façade" support
-# move static candidates to __init__? create default controller
+
 class Controller:
     """ This class is used to create and manage inputs and outputs"""
 
     def __init__(self):
         self._inputs = []
         self._outputs = []
-
-    def node_from_function(self, supplier):
-        """
-        Create a node with a value supplied by a function.
-        :param supplier: A function that returns a value.
-        :return: A node that can be operated on.
-        """
-        return FunctionInput(supplier)
-
-    def node_from_object(self, supplier):
-        """ create a node with a value supplied from an object
-        :param supplier: an object with a value property
-        :return: a node that can be operated on
-        """
-        return ValueInput(supplier)
-
-    def node_from_value(self, value):
-        """ create a node from a literal value
-        :param value: a literal value
-        :return: a node that can be operated on
-        """
-        return Operand(value=value)
 
     def poll_input(self, supplier):
         """
