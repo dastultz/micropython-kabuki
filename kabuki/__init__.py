@@ -41,3 +41,7 @@ def wire_output(operand, consumer):
 
 def run():
     _default_controller.run()
+
+
+def enable_profiling():
+    _default_controller.enable_profiling()

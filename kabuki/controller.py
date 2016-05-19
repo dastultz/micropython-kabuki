@@ -1,4 +1,4 @@
-from kabuki.operators import Operand, Operator
+from kabuki.operators import Operator
 
 
 class Controller:
@@ -7,6 +7,7 @@ class Controller:
     def __init__(self):
         self._inputs = []
         self._outputs = []
+        self._profiler = None
 
     def poll_input(self, supplier):
         """
@@ -50,6 +51,12 @@ class Controller:
     def run(self):
         while True:
             self.update()
+            if self._profiler:
+                self._profiler.update()
+
+    def enable_profiling(self):
+        from kabuki.pyboard.profiler import Profiler
+        self._profiler = Profiler()
 
 
 class ValueInput(Operator):
