@@ -31,12 +31,12 @@ def node_from_value(value):
     return Operand(value=value)
 
 
-def poll_input(supplier):
-    _default_controller.poll_input(supplier)
+def poll_input(pollable):
+    _default_controller.poll_input(pollable)
 
 
-def wire_output(operand, consumer):
-    _default_controller.wire_output(operand, consumer)
+def wire_output(node, consumer):
+    _default_controller.wire_output(node, consumer)
 
 
 def run():

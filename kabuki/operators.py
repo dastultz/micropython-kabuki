@@ -4,29 +4,29 @@ from kabuki import timing
 class Operable:
     """ Provides for "object-oriented math". Calculations are deferred until requested."""
 
-    def __add__(self, other):
-        return Add(self, other)
+    def __add__(self, node):
+        return Add(self, node)
 
-    def __radd__(self, other):
-        return Add(self, other)
+    def __radd__(self, node):
+        return Add(self, node)
 
-    def __sub__(self, other):
-        return Sub(self, other)
+    def __sub__(self, node):
+        return Sub(self, node)
 
-    def __rsub__(self, other):
-        return Sub(other, self)
+    def __rsub__(self, node):
+        return Sub(node, self)
 
-    def __mul__(self, other):
-        return Mul(self, other)
+    def __mul__(self, node):
+        return Mul(self, node)
 
-    def __rmul__(self, other):
-        return Mul(self, other)
+    def __rmul__(self, node):
+        return Mul(self, node)
 
-    def __truediv__(self, other):
-        return Div(self, other)
+    def __truediv__(self, node):
+        return Div(self, node)
 
-    def __rtruediv__(self, other):
-        return Div(other, self)
+    def __rtruediv__(self, node):
+        return Div(node, self)
 
     def __neg__(self):
         return Neg(self)
@@ -34,39 +34,39 @@ class Operable:
     def __abs__(self):
         return Abs(self)
 
-    def __gt__(self, other):
-        return GreaterThan(self, other)
+    def __gt__(self, node):
+        return GreaterThan(self, node)
 
-    def __lt__(self, other):
-        return LessThan(self, other)
+    def __lt__(self, node):
+        return LessThan(self, node)
 
-    def __ge__(self, other):
-        return GreaterOrEqual(self, other)
+    def __ge__(self, node):
+        return GreaterOrEqual(self, node)
 
-    def __le__(self, other):
-        return LessOrEqual(self, other)
+    def __le__(self, node):
+        return LessOrEqual(self, node)
 
-    def filter_above(self, other):
-        return FilterAbove(self, other)
+    def filter_above(self, node):
+        return FilterAbove(self, node)
 
-    def filter_below(self, other):
-        return FilterBelow(self, other)
+    def filter_below(self, node):
+        return FilterBelow(self, node)
 
-    def constrain(self, lower, upper):
-        return Constrain(self, lower, upper)
+    def constrain(self, lower_node, upper_node):
+        return Constrain(self, lower_node, upper_node)
 
-    def map(self, in_start, in_stop, out_start, out_stop, constrain=True):
-        op = Map(self, in_start, in_stop, out_start, out_stop)
+    def map(self, in_start_node, in_stop_node, out_start_node, out_stop_node, constrain=True):
+        op = Map(self, in_start_node, in_stop_node, out_start_node, out_stop_node)
         if constrain:
-            return op.constrain(out_start, out_stop)
+            return op.constrain(out_start_node, out_stop_node)
         else:
             return op
 
-    def retain_between(self, lower, upper):
-        return RetainBetween(self, lower, upper)
+    def retain_between(self, lower_node, upper_node):
+        return RetainBetween(self, lower_node, upper_node)
 
-    def reduce_noise(self, band):
-        return ReduceNoise(self, band)
+    def reduce_noise(self, band_node):
+        return ReduceNoise(self, band_node)
 
     def throttle(self, milliseconds):
         return Throttle(self, milliseconds)
@@ -291,8 +291,8 @@ def _map(value, in_start, in_stop, out_start, out_stop):
 
 class ReduceNoise(DoubleArgumentOperator):
 
-    def __init__(self, first_operand, second_operand):
-        super().__init__(first_operand, second_operand)
+    def __init__(self, value_node, band):
+        super().__init__(value_node, band)
         self._last_trend_direction = True  # True for "up"
         self._last_trend_value = 0 # the last value that was in the trend direction
 
@@ -318,8 +318,8 @@ class ReduceNoise(DoubleArgumentOperator):
 
 class Throttle(SingleArgumentOperator):
 
-    def __init__(self, first_operand, milliseconds):
-        super().__init__(first_operand)
+    def __init__(self, value_node, milliseconds):
+        super().__init__(value_node)
         self._last_sample_time = 0
         self._threshold = milliseconds
 
@@ -336,8 +336,8 @@ class Throttle(SingleArgumentOperator):
 
 class Cycler(DoubleArgumentOperator):
 
-    def __init__(self, first_operand, second_operand, initial_position = 0):
-        super().__init__(first_operand, second_operand)
+    def __init__(self, length_node, delta_node, initial_position = 0):
+        super().__init__(length_node, delta_node)
         self._position = initial_position
 
     def _calculate_value(self):
@@ -358,8 +358,8 @@ class Cycler(DoubleArgumentOperator):
 
 class Channel(DoubleArgumentOperator):
 
-    def __init__(self, first_operand, second_operand, keys):
-        super().__init__(first_operand, second_operand)
+    def __init__(self, position_node, length_node, keys):
+        super().__init__(position_node, length_node)
         try:
             self._xlist = []
             self._ylist = []

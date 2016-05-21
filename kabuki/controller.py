@@ -9,27 +9,27 @@ class Controller:
         self._outputs = []
         self._profiler = None
 
-    def poll_input(self, supplier):
+    def poll_input(self, pollable):
         """
         Registers an object to be polled with each loop.
-        :param supplier: An object with a poll function.
+        :param pollable: An object with a poll function.
         """
-        self._inputs.append(supplier)
+        self._inputs.append(pollable)
 
-    def wire_output(self, operand, consumer):
+    def wire_output(self, node, consumer):
         """
-        Connect an operand to an output (consumer)
-        :param operand: The last operand to connect to the output.
+        Connect a node to an output (consumer)
+        :param node: The last operand to connect to the output.
         :param consumer: A function that can receive a value or an object with a value
         property.
         """
         if callable(consumer):
-            self._outputs.append(FunctionOutput(operand, consumer))
+            self._outputs.append(FunctionOutput(node, consumer))
         elif hasattr(consumer, "consume"):
             f = getattr(consumer, "consume")
             if not callable(f):
                 raise RuntimeError("consumer attribute \"consume\" is not callable")
-            self._outputs.append(ValueOutput(operand, consumer))
+            self._outputs.append(ValueOutput(node, consumer))
         else:
             raise RuntimeError("output consumer must be callable or have a consume function")
 
