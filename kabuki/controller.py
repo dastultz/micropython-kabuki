@@ -1,5 +1,5 @@
 from kabuki.operators import Operator
-
+from kabuki.timing import Profiler
 
 class Controller:
     """ This class is used to create and manage inputs and outputs"""
@@ -55,7 +55,6 @@ class Controller:
                 self._profiler.update()
 
     def enable_profiling(self):
-        from kabuki.pyboard.profiler import Profiler
         self._profiler = Profiler()
 
 

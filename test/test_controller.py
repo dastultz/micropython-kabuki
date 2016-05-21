@@ -1,8 +1,10 @@
 import unittest
 
+import time
+
 import kabuki
 from kabuki.controller import FunctionInput, ValueInput, Controller, ValueOutput, FunctionOutput
-from kabuki.operators import Operand
+from kabuki.operators import Operand, Throttle
 
 
 class TestController(unittest.TestCase):
@@ -200,3 +202,27 @@ class TestCalcCaching(unittest.TestCase):
         self.assertEqual(6, out.value)
         controller.update()
         self.assertEqual(7, out.value)
+
+
+class TestThrottle(unittest.TestCase):
+
+    def test_simple(self):
+        n1 = Operand(value=1)
+        op = Throttle(n1, 100)
+        self.assertEqual(1, op.value)
+        op.reset()
+        time.sleep(0.035)
+        n1._value += 1
+        self.assertEqual(1, op.value)
+        op.reset()
+        time.sleep(0.035)
+        n1._value += 1
+        self.assertEqual(1, op.value)
+        op.reset()
+        time.sleep(0.035)
+        n1._value += 1
+        self.assertEqual(1, op.value)
+        op.reset()
+        time.sleep(0.035)
+        n1._value += 1
+        self.assertEqual(5, op.value)

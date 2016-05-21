@@ -1,3 +1,4 @@
+from kabuki import timing
 
 
 class Operable:
@@ -66,6 +67,9 @@ class Operable:
 
     def reduce_noise(self, band):
         return ReduceNoise(self, band)
+
+    def throttle(self, milliseconds):
+        return Throttle(self, milliseconds)
 
 
 class Operator(Operable):
@@ -310,6 +314,24 @@ class ReduceNoise(DoubleArgumentOperator):
             value = current_value
 
         return value
+
+
+class Throttle(SingleArgumentOperator):
+
+    def __init__(self, first_operand, milliseconds):
+        super().__init__(first_operand)
+        self._last_sample_time = 0
+        self._threshold = milliseconds
+
+    def _calculate_value(self):
+        self._last_sample_time = timing.millis()
+        return self._first_operand.value
+
+    def reset(self):
+        current = timing.millis()
+        elapsed = current - self._last_sample_time
+        if elapsed >= self._threshold:
+            super().reset()
 
 
 class Cycler(DoubleArgumentOperator):

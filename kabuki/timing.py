@@ -1,5 +1,14 @@
 import pyb
 
+"""
+This module exists merely to encapsulate the dependency on pyb.
+Could inject other hardware platforms here.
+"""
+
+
+def millis():
+    return pyb.millis()
+
 
 class Profiler:
 

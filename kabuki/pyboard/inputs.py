@@ -67,3 +67,19 @@ class ChannelOperator(Operator):
 
     def _calculate_value(self):
         return self._ppm_in.get_channel_value(self._channel)
+
+
+class ThrottledIn:
+
+    def __init__(self, delegate, milliseconds):
+        self._delegate = delegate
+        self._last_sample_time = 0
+        self._threshold = milliseconds
+
+    def poll(self):
+        current = pyb.millis()
+        elapsed = current - self._last_sample_time
+        if elapsed >= self._threshold:
+            self._delegate.poll()
+            self._last_sample_time = current
+
