@@ -57,6 +57,10 @@ class Controller:
     def enable_profiling(self):
         self._profiler = Profiler()
 
+    def clear(self):
+        self._inputs.clear()
+        self._outputs.clear()
+
 
 class ValueInput(Operator):
     """ Adapts an arbitrary input (value supplier) to an operand."""
