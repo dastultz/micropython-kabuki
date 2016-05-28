@@ -52,6 +52,21 @@ class TestController(unittest.TestCase):
         except RuntimeError:
             pass
 
+    def test_poll_input_poll_error(self):
+        """ input supplier poll function throws error """
+        controller = Controller()
+        try:
+            controller.poll_input(BadSupplierPollError())
+            controller.update()
+            self.fail("expected exception")
+        except RuntimeError:
+            print("RuntimeError")
+            self.fail("Did not expect RuntimeError")
+        except TypeError:
+            print("TypeError")
+            pass
+
+
     def test_bad_output(self):
         """ output consumer is not callable, does not have value property """
         controller = Controller()
@@ -66,6 +81,12 @@ class BadSupplierNoPoll:
 
     def __init__(self):
         self.monkey = True
+
+
+class BadSupplierPollError:
+
+    def poll(self):
+        x = "A" / 2
 
 
 class BadSupplierNotCallable:

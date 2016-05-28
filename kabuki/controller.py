@@ -42,8 +42,11 @@ class Controller:
         for input in self._inputs:
             try:
                 input.poll()
-            except TypeError:
-                raise RuntimeError("object passed to poll_input() must have a poll() function.")
+            except TypeError as error:
+                if str(error).find("object is not callable") != -1:
+                    raise RuntimeError("object passed to poll_input() must have a poll() function.")
+                else:
+                    raise error
 
         for output in self._outputs:
             output.update()
