@@ -349,6 +349,46 @@ class TestFilterBelow(unittest.TestCase):
         self.assertEqual(0, n1.filter_below(n2).value)
 
 
+class TestFilterBetween(unittest.TestCase):
+
+    def test_between(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=2)
+        n3 = Operand(value=4)
+        self.assertEqual(0, n1.filter_between(n2, n3).value)
+
+    def test_below(self):
+        n1 = Operand(value=2)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(2, n1.filter_between(n2, n3).value)
+
+    def test_above(self):
+        n1 = Operand(value=7)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(7, n1.filter_between(n2, n3).value)
+
+    def test_equal_to_lower(self):
+        n1 = Operand(value=3)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(0, n1.filter_between(n2, n3).value)
+
+    def test_equal_to_upper(self):
+        n1 = Operand(value=5)
+        n2 = Operand(value=3)
+        n3 = Operand(value=5)
+        self.assertEqual(0, n1.filter_between(n2, n3).value)
+
+    def test_wrap(self):
+        n1 = Operand(value=3)
+
+        self.assertEqual(0, n1.filter_between(2, 4).value)
+        self.assertEqual(3, n1.filter_between(5, 7).value)
+        self.assertEqual(3, n1.filter_between(0, 2).value)
+        
+        
 class TestRetainBetween(unittest.TestCase):
 
     def test_between(self):

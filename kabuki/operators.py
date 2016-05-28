@@ -52,6 +52,9 @@ class Operable:
     def filter_below(self, node):
         return FilterBelow(self, node)
 
+    def filter_between(self, lower_node, upper_node):
+        return FilterBetween(self, lower_node, upper_node)
+
     def constrain(self, lower_node, upper_node):
         return Constrain(self, lower_node, upper_node)
 
@@ -248,6 +251,18 @@ class FilterBelow(DoubleArgumentOperator):
             return value
         else:
             return 0
+
+
+class FilterBetween(TripleArgumentOperator):
+
+    def _calculate_value(self):
+        val = self._first_operand.value
+        lower = self._second_operand.value
+        upper = self._third_operand.value
+        if lower <= val <= upper:
+            return 0
+        else:
+            return val
 
 
 class RetainBetween(TripleArgumentOperator):
