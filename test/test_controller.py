@@ -60,10 +60,8 @@ class TestController(unittest.TestCase):
             controller.update()
             self.fail("expected exception")
         except RuntimeError:
-            print("RuntimeError")
             self.fail("Did not expect RuntimeError")
         except TypeError:
-            print("TypeError")
             pass
 
 
@@ -152,7 +150,7 @@ class TestValueInput(unittest.TestCase):
 
     def test_operable(self):
         vi = ValueInput(CustomValueSupplier())
-        vi += 1.2
+        vi = vi.add(1.2)
         self.assertEqual(4.7, vi.value, "should be default value of CustomValueSupplier + 1.2")
 
 
@@ -172,7 +170,7 @@ class TestFunctionInput(unittest.TestCase):
 
     def test_operable(self):
         fi = FunctionInput(good_input_function)
-        fi += "dude"
+        fi = fi.add("dude")
         self.assertEqual("yay!dude", fi.value, "should be value returned by good_input_function + dude")
 
     def test_no_return_value(self):
@@ -212,7 +210,7 @@ class TestCalcCaching(unittest.TestCase):
         controller = Controller()
         n1 = Operand(value=2)
         n2 = Operand(value=4)
-        n3 = n1 + n2
+        n3 = n1.add(n2)
         out = CustomValueConsumer()
         controller.wire_output(n3, out)
         controller.update()

@@ -4,47 +4,23 @@ from kabuki import timing
 class Operable:
     """ Provides for "object-oriented math". Calculations are deferred until requested."""
 
-    def __add__(self, node):
+    def add(self, node):
         return Add(self, node)
 
-    def __radd__(self, node):
-        return Add(self, node)
-
-    def __sub__(self, node):
+    def sub(self, node):
         return Sub(self, node)
 
-    def __rsub__(self, node):
-        return Sub(node, self)
-
-    def __mul__(self, node):
+    def mul(self, node):
         return Mul(self, node)
 
-    def __rmul__(self, node):
-        return Mul(self, node)
-
-    def __truediv__(self, node):
+    def div(self, node):
         return Div(self, node)
 
-    def __rtruediv__(self, node):
-        return Div(node, self)
-
-    def __neg__(self):
+    def neg(self):
         return Neg(self)
 
-    def __abs__(self):
+    def abs(self):
         return Abs(self)
-
-    def __gt__(self, node):
-        return GreaterThan(self, node)
-
-    def __lt__(self, node):
-        return LessThan(self, node)
-
-    def __ge__(self, node):
-        return GreaterOrEqual(self, node)
-
-    def __le__(self, node):
-        return LessOrEqual(self, node)
 
     def filter_above(self, node):
         return FilterAbove(self, node)
@@ -208,28 +184,6 @@ class Mul(DoubleArgumentOperator):
 
     def _calculate_value(self):
         return self._first_operand.value * self._second_operand.value
-
-
-class GreaterThan(DoubleArgumentOperator):
-
-    def _calculate_value(self):
-        return self._first_operand.value > self._second_operand.value
-
-
-class LessThan(DoubleArgumentOperator):
-    def _calculate_value(self):
-        return self._first_operand.value < self._second_operand.value
-
-
-class GreaterOrEqual(DoubleArgumentOperator):
-    def _calculate_value(self):
-        return self._first_operand.value >= self._second_operand.value
-
-
-class LessOrEqual(DoubleArgumentOperator):
-    def _calculate_value(self):
-        return self._first_operand.value <= self._second_operand.value
-
 
 class FilterAbove(DoubleArgumentOperator):
 
