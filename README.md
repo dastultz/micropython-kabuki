@@ -2,11 +2,11 @@
 
 Kabuki is a framework for coordinating inputs and outputs on a microcontroller running Micropython such as the Pyboard.
 
-Kabuki can do simple things like connect buttons to lights. It can also do much more complex things like animate a robot with standard R/C servos. Kabuki borrows some ideas from neural networks and function programming such as the Monad. Kabuki lets you create a web of "nodes" that influence each other. You can chain, branch, and combine calculations that transform input values into the desired output values.
+Kabuki can do simple things like connect buttons to lights. It can also do much more complex things like animate a robot with standard R/C servos. Kabuki borrows some ideas from neural networks and functional programming, namely the [Monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)). Kabuki lets you create a web of "nodes" that influence each other. You can chain, branch, and combine calculations that transform input values into the desired output values.
 
 **Simple Example**
 
-Let's start with a very simple example:
+Let's start with a very simple example, the "hello world" of Kabuki:
 
 ```python
 import kabuki
@@ -66,7 +66,7 @@ while True:
         led.intensity(intensity)
 ```
 
-I'm not the greatest Python programmer, it might be possible to accomplish the goal with fewer lines, but this should suffice to illustrate the benefits of a declarative style. You probably don't find the above particularly difficult to read but if you are familiar with the phrase "cyclomatic complexity" you'll appreciate what Kabuki can do for you. Here's the same behavior coded with Kabuki:
+I imagine there are some sharp Python programmers out there that can accomplish the goal with fewer lines, but this should suffice to illustrate the benefits of a declarative style. You probably don't find the above particularly difficult to read but if you are familiar with the phrase "cyclomatic complexity" you'll appreciate what Kabuki can do for you. Here's the same behavior coded with Kabuki:
 
 First the imports:
 
@@ -84,7 +84,7 @@ Then we create an input:
 
 `kabuki.poll_input(acc_in)`
 
-Output values are determined by following the chain backwards from the output through to the inputs or literal values and then calculating forward. The accelerometer has 3 axes that can all be read with one function call. If we were using all 3 axes we would not want to ask the accelerometer for the current values 3 times in one loop. So we poll the accelerometer as one input, then we create a "node" from the `y` axis:
+Output values are determined by requesting the value of the node that precedes it in the chain which in turn requests the value before it until the inputs are reached. Each node along the way applies its transformation to the previous value(s). The accelerometer has 3 axes that can all be read with one function call. If we were using all 3 axes we would not want to ask the accelerometer for the current values 3 times in one loop. So we poll the accelerometer as one input, then we create a "node" from the `y` axis:
 
 `acc_y = acc_in.y()`
 
@@ -98,11 +98,11 @@ led_3_op = acc_y.retain_between(1, tilt)
 led_4_op = acc_y.filter_below(tilt)
 ```
 
-The accelerometer provides values from 32 to -32 on each axis. `AccelIn` uses the method `filtered_xyz()` which sums consecutive values to smooth the signal a bit. We have 4 lights, 2 will be lit when tilted to the left and the other 2 will be lit when tilted to the right. The value of 30 was chosen here by experimentation to create 4 useful ranges: greater than 30, between 0 and 30, between 0 and -30 and less than 30.
+The accelerometer provides values from 32 to -32 on each axis. `AccelIn` uses the method `filtered_xyz()` which sums consecutive values to smooth the signal a bit. We have 4 lights, 2 will be lit when tilted to the left and the other 2 will be lit when tilted to the right. The value of 30 was chosen here by experimentation to create 4 useful ranges: greater than 30, between 0 and 30, between 0 and -30 and less than -30. These 4 ranges will be applied to the 4 LEDs.
 
 The basic idea of a neural network is to connect "nodes" and have them influence each other. While nodes can have any value that supports the operations you wish to perform, for the most part we're talking about numbers and an occasional `True` or `False`. The filter and retain operators above don't drop values from a stream but choose between the current value and zero with the expectation that zero will have no influence (or will completely supress some signal).
 
-Values above -30 are changed to zero, values between -30 and 0 are kept (other values are changed to zero), values between 0 and 30 are kept, and values below 30 are changed to zero. These operations are then applied to the outputs:
+The `led_1_op` node changes values above -30 to zero. The `led_2_op` node changes values outside the range -30 and 0 to zero. The `led_3_op` node does the same for values outside the range 1 to 30. Finally, `led_4_op` node changes values below 30 to zero. These operations are then wired to the outputs:
 
 ```python
 kabuki.wire_output(led_1_op, LedOut(1))
@@ -121,7 +121,6 @@ If the `y` axis of the accelerometer reads 8, all of the LED operators will yiel
 import kabuki
 from kabuki.pyboard.inputs import AccelIn
 from kabuki.pyboard.outputs import LedOut
-
 
 acc_in = AccelIn()
 kabuki.poll_input(acc_in)
