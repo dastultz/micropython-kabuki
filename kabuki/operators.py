@@ -176,8 +176,10 @@ class Abs(SingleArgumentOperator):
 class Div(DoubleArgumentOperator):
 
     def _calculate_value(self):
-        # todo: should we make this a "safe" divide (by zero)?
-        return self._first_operand.value / self._second_operand.value
+        denominator = self._second_operand.value
+        if denominator == 0:
+            return 0
+        return self._first_operand.value / denominator
 
 
 class Mul(DoubleArgumentOperator):
@@ -303,6 +305,18 @@ class Throttle(SingleArgumentOperator):
             super().reset()
 
 
+class Debug(SingleArgumentOperator):
+
+    def __init__(self, node, label):
+        super().__init__(node)
+        self._label = label
+
+    def _calculate_value(self):
+        value = self._first_operand.value
+        print("%s : %s" %(self._label, value))
+        return value
+
+
 class Cycler(DoubleArgumentOperator):
 
     def __init__(self, length_node, delta_node, initial_position = 0):
@@ -379,3 +393,10 @@ class Channel(DoubleArgumentOperator):
             right_y = self._ylist[right_x_index].value
 
         return _map(position, left_x, right_x, left_y, right_y)
+
+    def reset(self):
+            for v in self._xlist:
+                v.reset()
+            for v in self._ylist:
+                v.reset()
+            super().reset()

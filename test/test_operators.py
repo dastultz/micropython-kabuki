@@ -195,7 +195,13 @@ class TestDiv(unittest.TestCase):
         n1 = Operand(14)
 
         n2 = n1.div(2)
-        self.assertEqual(n2.value, 7)
+        self.assertEqual(7, n2.value)
+
+    def test_safe_zero(self):
+        n1 = Operand(2)
+
+        n2 = n1.div(0)
+        self.assertEqual(0, n2.value)
 
 
 class TestMul(unittest.TestCase):
