@@ -50,6 +50,9 @@ class Operable:
     def throttle(self, milliseconds):
         return Throttle(self, milliseconds)
 
+    def debug(self, label):
+        return Debug(self, label)
+
 
 class Operator(Operable):
     """ Performs "lazy" or deferred calculations on objects.

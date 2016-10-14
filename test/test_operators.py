@@ -752,3 +752,11 @@ class TestChannel(unittest.TestCase):
         keys = [(3, 3)]
         channel = cycler.channel(keys)
         self.assertEqual(3, channel.value)
+
+
+class TestDebug(unittest.TestCase):
+
+    def test_simple(self):
+        n1 = Operand(1.5)
+        d = n1.debug("Fred")
+        d.value
