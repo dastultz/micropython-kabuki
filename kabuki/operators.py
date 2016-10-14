@@ -53,6 +53,9 @@ class Operable:
     def debug(self, label):
         return Debug(self, label)
 
+    def switch(self, a, b, sustain_time = None):
+        return Switch(self, a, b, sustain_time=sustain_time)
+
 
 class Operator(Operable):
     """ Performs "lazy" or deferred calculations on objects.
@@ -318,6 +321,40 @@ class Debug(SingleArgumentOperator):
         value = self._first_operand.value
         print("%s : %s" %(self._label, value))
         return value
+
+
+class Switch(TripleArgumentOperator):
+
+    def __init__(self, control, a, b, sustain_time = None):
+        super().__init__(control, a, b)
+        self._sustain_time = None if sustain_time is None else int(sustain_time * 1000)
+        self._release_time = None
+        self._last_main = True  # taking the main path, "a"
+
+    def _calculate_value(self):
+        control = self._first_operand
+        a = self._second_operand
+        b = self._third_operand
+        v = a.value
+
+        main = (control.value is None
+            or control.value == 0
+            or not control)
+
+        if self._sustain_time is not None:
+            # we've just switched to the alternate path, start timing
+            if self._last_main and not main:
+                self._release_time = timing.millis() + self._sustain_time
+            # check if time has expired
+            if (self._release_time is not None
+                    and timing.millis() >= self._release_time):
+                self._release_time = None
+
+        if self._release_time is not None or not main:
+            v = b.value
+
+        self._last_main = main
+        return v
 
 
 class Cycler(DoubleArgumentOperator):
