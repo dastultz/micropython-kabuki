@@ -42,7 +42,7 @@ def run():
         try:
             kabuki.run()
         except Exception as exc:
-            print(exc)
+            sys.print_exception(exc)
             _install_police_lights(loader)
 
 
