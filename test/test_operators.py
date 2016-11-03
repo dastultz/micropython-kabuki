@@ -762,55 +762,55 @@ class TestDebug(unittest.TestCase):
         d.value
 
 
-class TestSwitch(unittest.TestCase):
+class TestSwap(unittest.TestCase):
 
     def test_none(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(None)
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(1.1, s.value)
 
     def test_false(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(False)
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(1.1, s.value)
 
     def test_zero(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(0)
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(1.1, s.value)
 
     def test_not_none(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand("fred")
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(2.5, s.value)
 
     def test_true(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(True)
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(2.5, s.value)
 
     def test_not_zero(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(7)
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(2.5, s.value)
 
     def test_on_off(self):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(0)
-        s = c.switch(n1, n2)
+        s = c.swap(n1, n2)
         self.assertEqual(1.1, s.value)
         c._value = 1
         s.reset()
@@ -820,7 +820,7 @@ class TestSwitch(unittest.TestCase):
         n1 = Operand(1.1)
         n2 = Operand(2.5)
         c = Operand(0)
-        s = c.switch(n1, n2, sustain_time=0.05)
+        s = c.swap(n1, n2, sustain_time=0.05)
         self.assertEqual(1.1, s.value)
 
         c._value = 1

@@ -53,8 +53,8 @@ class Operable:
     def debug(self, label):
         return Debug(self, label)
 
-    def switch(self, a, b, sustain_time = None):
-        return Switch(self, a, b, sustain_time=sustain_time)
+    def swap(self, a, b, sustain_time = None):
+        return Swap(self, a, b, sustain_time=sustain_time)
 
 
 class Operator(Operable):
@@ -318,12 +318,14 @@ class Debug(SingleArgumentOperator):
         self._label = label
 
     def _calculate_value(self):
+        # todo: be nice to print all values on one line and add new line per loop
         value = self._first_operand.value
         print("%s : %s" %(self._label, value))
         return value
 
 
-class Switch(TripleArgumentOperator):
+# todo: needs a reset concept, after sustain_time reached, resets to "a" for some time (same as sustain?)
+class Swap(TripleArgumentOperator):
 
     def __init__(self, control, a, b, sustain_time = None):
         super().__init__(control, a, b)
