@@ -442,3 +442,22 @@ class Channel(DoubleArgumentOperator):
             for v in self._ylist:
                 v.reset()
             super().reset()
+
+
+class DictSourceOperator(SingleArgumentOperator):
+
+    # op is an Operator with a value that is a dictionary
+    def __init__(self, key, op, default_value=None):
+        super().__init__(op)
+        self._key = key
+        self._op = self._first_operand
+        self._default_value = default_value
+
+    def _calculate_value(self):
+        values = self._op.value
+        try:
+            value = values[self._key]
+        except KeyError:
+            values[self._key] = self._default_value
+            value = self._default_value
+        return value

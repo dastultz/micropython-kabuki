@@ -835,3 +835,33 @@ class TestSwap(unittest.TestCase):
         s.reset()
         time.sleep(0.03)
         self.assertEqual(1.1, s.value)
+
+
+class TestDictSource(unittest.TestCase):
+
+    def test_raw_dict(self):
+        data = {"a": 1, "b": 2}
+        n1 = DictSourceOperator("a", data)
+        n2 = Operand(4)
+        op = n1.add(n2)
+        self.assertEqual(5, op.value)
+
+    def test_op_dict(self):
+        data = {"a": 1, "b": 2}
+        n1 = DictSourceOperator("a", Operand(data))
+        n2 = Operand(4)
+        op = n1.add(n2)
+        self.assertEqual(5, op.value)
+
+    def test_default_unspecified(self):
+        data = {"a": 1, "b": 2}
+        n1 = DictSourceOperator("c", Operand(data))
+        self.assertEqual(None, n1.value)
+
+    def test_default_specified(self):
+        data = {"a": 1, "b": 2}
+        n1 = DictSourceOperator("c", Operand(data), default_value=7)
+        self.assertEqual(7, n1.value)
+        data["c"] = 3
+        n1.reset()
+        self.assertEqual(3, n1.value)
