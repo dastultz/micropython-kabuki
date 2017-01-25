@@ -1,5 +1,7 @@
+import json
+
 import pyb
-from kabuki.operators import Operator
+from kabuki.operators import Operator, DictSourceOperator
 from ppm_decoder import Decoder
 
 
@@ -83,3 +85,37 @@ class ThrottledIn:
             self._delegate.poll()
             self._last_sample_time = current
 
+
+class SerialIn:
+
+    def __init__(self):
+        self._serial = pyb.USB_VCP()
+        self._dict = {}
+        self._channel_definitions = []
+
+    def poll(self):
+        if self._serial.isconnected():
+            lines = self._serial.readlines()
+            for line in lines:
+                if len(line) > 1:  # need more than just a new line character
+                    line = line.decode()
+                    if line.startswith("?"):
+                        self._send_definitions()
+                    else:
+                        # each line assumed to be JSON of key value pairs
+                        try:
+                            self._dict.update(json.loads(line))
+                        except:
+                            print("ignoring bad JSON: %s" % line)
+
+    def channel(self, label=None, default_value=None, min=None, max=None):
+        key = str(len(self._channel_definitions))
+        self._channel_definitions.append({"k": key, "l": label, "m": min, "M": max})
+        return DictSourceOperator(key, self._dict, default_value=default_value)
+
+    def _send_definitions(self):
+        # copy the current value to the definition
+        for definition in self._channel_definitions:
+            definition["v"] = self._dict[definition["k"]]
+        json_str = json.dumps(self._channel_definitions)
+        print(json_str)
